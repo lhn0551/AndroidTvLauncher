@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">电视推广</string>
+    <string name="scancode">手机扫描二维码,绑定电视设备开始赚钱</string>
+    <string name="browse_title">"整点科技"</string>
+</resources>
