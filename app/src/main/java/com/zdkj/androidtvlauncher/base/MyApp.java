@@ -25,7 +25,8 @@ public class MyApp extends Application {
         super.onCreate();
         MyApp.instance = this;
         NetStateChangeReceiver.registerReceiver(this);
-        AndroidId=Settings.System.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+//        AndroidId=Settings.System.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        AndroidId="65f61f5df110d25d";
         PreferencesUtil.getInstance().init(this);
         RxHttp.setDebug(true);
     }

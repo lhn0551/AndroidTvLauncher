@@ -48,7 +48,7 @@ public class VideoBean implements Serializable {
 
         private String video_id;
         private String video_url;
-        private String is_update;
+
         private String video_name;
         private String local_path;
 
@@ -84,12 +84,6 @@ public class VideoBean implements Serializable {
             this.video_url = video_url;
         }
 
-        public String getIs_update() {
-            return is_update;
-        }
 
-        public void setIs_update(String is_update) {
-            this.is_update = is_update;
-        }
     }
 }

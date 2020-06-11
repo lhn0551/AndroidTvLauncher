@@ -3,6 +3,13 @@
     package="com.zdkj.androidtvlauncher">
 
 
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
@@ -14,12 +21,19 @@
         android:name=".base.MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/tv"
+        android:banner="@mipmap/tv"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/tv"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.DrawerActivity"></activity>
+        <activity android:name=".ui.DrawerActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.ScanCodeActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
@@ -34,16 +48,16 @@
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
         </activity>
-        <activity
-            android:name=".ui.MainActivityExo"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTask" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+<!--        <activity-->
+<!--            android:name=".ui.MainActivityExo"-->
+<!--            android:configChanges="keyboardHidden|orientation|screenSize"-->
+<!--            android:launchMode="singleTask" >-->
+<!--&lt;!&ndash;            <intent-filter>&ndash;&gt;-->
+<!--&lt;!&ndash;                <action android:name="android.intent.action.MAIN" />&ndash;&gt;-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+<!--&lt;!&ndash;                <category android:name="android.intent.category.LAUNCHER" />&ndash;&gt;-->
+<!--&lt;!&ndash;            </intent-filter>&ndash;&gt;-->
+<!--        </activity>-->
 
         <provider
             android:name="androidx.core.content.FileProvider"

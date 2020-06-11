@@ -24,7 +24,7 @@ public class CacheFileNameGenerator implements FileNameGenerator {
         } else {
             path = url;
         }
-        LogUtils.d( "CacheFileNameGenerator return " + path);
+//        LogUtils.d( "CacheFileNameGenerator return " + path);
         return path;
     }
 }
