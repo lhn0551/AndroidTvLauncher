@@ -1,10 +1,5 @@
 package com.zdkj.androidtvlauncher.adapter;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +8,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.zdkj.androidtvlauncher.R;
 import com.zdkj.androidtvlauncher.models.LiveSourceBean;
+import com.zdkj.androidtvlauncher.utils.LogUtils;
 
 import java.util.List;
 
@@ -29,9 +25,9 @@ public class RvAdapter extends BaseQuickAdapter<LiveSourceBean.DataBean.LiveBean
     }
 
 
-
     @Override
     protected void convert(@NonNull BaseViewHolder helper, LiveSourceBean.DataBean.LiveBean item) {
+        LogUtils.e("TAG111");
         helper.setText(R.id.txt_num,item.getName());
     }
 }

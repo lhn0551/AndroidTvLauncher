@@ -10,4 +10,12 @@
         <!--borderview宽度-->
         <attr name="borderview_width" format="dimension" />
     </declare-styleable>
+    <declare-styleable name="TVRecyclerView">
+        <attr name="isNeedNotifyData" format="boolean" />
+        <attr name="drawChildOrderEnable" format="boolean" />
+        <attr name="handLastLeftKey" format="boolean" />
+        <attr name="handLastRightKey" format="boolean" />
+        <attr name="handLastUpKey" format="boolean" />
+        <attr name="handLastDownKey" format="boolean" />
+    </declare-styleable>
 </resources>

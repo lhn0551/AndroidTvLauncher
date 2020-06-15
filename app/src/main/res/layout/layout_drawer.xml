@@ -1,17 +1,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="@dimen/dp_180"
     android:layout_height="match_parent"
+    android:background="@drawable/remoter_bg"
     android:clickable="true"
-    android:background="#88E6E8E7"
+    android:focusable="false"
     android:orientation="vertical"
     android:theme="@style/ThemeOverlay.AppCompat.Light">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_10"
+        android:gravity="center"
+        android:text="@string/channel"
+        android:textColor="@color/ytbv_title"
+        android:textSize="@dimen/sp_18"
+        android:textStyle="italic|bold" />
 
-  <com.zdkj.androidtvlauncher.widget.TvRecyclerView
-      android:id="@+id/tvRecycler"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"/>
-
+    <androidx.leanback.widget.VerticalGridView
+        android:id="@+id/hgv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>
 
 

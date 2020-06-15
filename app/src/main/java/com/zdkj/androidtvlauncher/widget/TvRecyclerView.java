@@ -23,17 +23,13 @@ import java.util.ArrayList;
  * @Desc：支持 1.选中项居中 2.焦点记忆 3.可以控制是否横竖向移除
  */
 public class TvRecyclerView extends RecyclerView {
-    public int getmLastFocusPosition() {
-        return mLastFocusPosition;
-    }
-
     //焦点是否居中
     private boolean mSelectedItemCentered = true;
     private int mSelectedItemOffsetStart = 0;
     private int mSelectedItemOffsetEnd = 0;
 
     //是否可以纵向移出
-    private boolean mCanFocusOutVertical = false;
+    private boolean mCanFocusOutVertical = true;
     //是否可以横向移出
     private boolean mCanFocusOutHorizontal = false;
     //焦点移出recyclerview的事件监听
@@ -43,7 +39,9 @@ public class TvRecyclerView extends RecyclerView {
     //最后一次聚焦的位置
     private int mLastFocusPosition = 0;
     private View mLastFocusView = null;
-
+public int getLastFocusPosition(){
+    return  mLastFocusPosition;
+}
 
     public TvRecyclerView(Context context) {
         super(context);
@@ -84,12 +82,15 @@ public class TvRecyclerView extends RecyclerView {
      */
     @Override
     public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
+        LogUtils.e("views = " + views);
+       LogUtils.e("lastFocusView = " + mLastFocusView + " mLastFocusPosition = " + mLastFocusPosition);
         if (this.hasFocus() || mLastFocusView == null) {
             //在recyclerview内部焦点切换
             super.addFocusables(views, direction, focusableMode);
         } else {
             //将当前的view放到Focusable views列表中，再次移入焦点时会取到该view,实现焦点记忆功能
             views.add(getLayoutManager().findViewByPosition(mLastFocusPosition));
+           LogUtils.e("views.add(lastFocusView)");
         }
     }
 
@@ -97,6 +98,15 @@ public class TvRecyclerView extends RecyclerView {
     public View focusSearch(View focused, int direction) {
         View realNextFocus = super.focusSearch(focused, direction);
         View nextFocus = FocusFinder.getInstance().findNextFocus(this, focused, direction);
+       LogUtils.e("focused = " + focused);
+       LogUtils.e("nextFocus = " + nextFocus);
+       LogUtils.e("realNextFocus = " + realNextFocus);
+        //canScrollVertically(1)  true表示能滚动，false表示已经滚动到底部
+        //canScrollVertically(-1) true表示能滚动，false表示已经滚动到顶部
+       LogUtils.e("canScrollVertically(-1) = " + canScrollVertically(-1));
+       LogUtils.e("canScrollVertically(1) = " + canScrollVertically(1));
+       LogUtils.e("canScrollHorizontally(-1) = " + canScrollHorizontally(-1));
+       LogUtils.e("canScrollHorizontally(1) = " + canScrollHorizontally(1));
         switch (direction) {
             case FOCUS_RIGHT:
                 //调用移出的监听
@@ -157,6 +167,7 @@ public class TvRecyclerView extends RecyclerView {
     @Override
     public void requestChildFocus(View child, View focused) {
         if (null != child) {
+           LogUtils.e("nextchild = " + child + ",focused = " + focused);
             if (!hasFocus()) {
                 //recyclerview 子view 重新获取焦点，调用移入焦点的事件监听
                 if (mFocusGainListener != null) {
@@ -169,6 +180,7 @@ public class TvRecyclerView extends RecyclerView {
             //取得获得焦点的item的position
             mLastFocusView = focused;
             mLastFocusPosition = getChildViewHolder(child).getAdapterPosition();
+           LogUtils.e("focusPos = " + mLastFocusPosition);
 
             //计算控制recyclerview 选中item的居中从参数
             if (mSelectedItemCentered) {
@@ -177,6 +189,8 @@ public class TvRecyclerView extends RecyclerView {
                 mSelectedItemOffsetEnd = mSelectedItemOffsetStart;
             }
         }
+       LogUtils.e("mSelectedItemOffsetStart = " + mSelectedItemOffsetStart);
+       LogUtils.e("mSelectedItemOffsetEnd = " + mSelectedItemOffsetEnd);
     }
 
     /**
@@ -237,10 +251,12 @@ public class TvRecyclerView extends RecyclerView {
 
 
         if (dx != 0 || dy != 0) {
+           LogUtils.e("dx = " + dx);
+           LogUtils.e("dy = " + dy);
             if (immediate) {
-                scrollBy(dx, dy);
+                scrollBy(0, dy);
             } else {
-                smoothScrollBy(dx, dy);
+                smoothScrollBy(0, dy);
             }
             // 重绘是为了选中item置顶，具体请参考getChildDrawingOrder方法
             postInvalidate();

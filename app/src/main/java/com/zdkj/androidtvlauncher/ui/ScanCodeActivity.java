@@ -86,7 +86,7 @@ public class ScanCodeActivity extends BaseActivity {
                         jsonObject = new JSONObject(s);
                         if (jsonObject.getString("code").equals("200")) {
                             checkBind=false;
-                            startActivity(new Intent(ScanCodeActivity.this, MainActivityExo.class));
+                            startActivity(new Intent(ScanCodeActivity.this, PlayVideoFragment.class));
 //                            startActivity(new Intent(ScanCodeActivity.this, TikTokActivity.class));
                             finish();
                         }

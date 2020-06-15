@@ -7,19 +7,28 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.leanback.widget.ArrayObjectAdapter;
+import androidx.leanback.widget.FocusHighlightHelper;
+import androidx.leanback.widget.ItemBridgeAdapter;
+import androidx.leanback.widget.OnChildViewHolderSelectedListener;
+import androidx.leanback.widget.VerticalGridView;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.zdkj.androidtvlauncher.R;
+import com.zdkj.androidtvlauncher.adapter.HPresenter;
 import com.zdkj.androidtvlauncher.adapter.RvAdapter;
 import com.zdkj.androidtvlauncher.base.BaseActivity;
 import com.zdkj.androidtvlauncher.models.LiveSourceBean;
 import com.zdkj.androidtvlauncher.msgs.LiveChannel;
+import com.zdkj.androidtvlauncher.utils.LogUtils;
 import com.zdkj.androidtvlauncher.utils.ToastUtil;
 import com.zdkj.androidtvlauncher.widget.TvRecyclerView;
 import com.zdkj.androidtvlauncher.widget.V7LinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -32,11 +41,11 @@ public class DrawerActivity extends BaseActivity {
     FrameLayout container;
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
-    @BindView(R.id.tvRecycler)
-    TvRecyclerView tvRecycler;
+    @BindView(R.id.hgv)
+    VerticalGridView mHgv;
     private MainViewModel mainViewModel;
     private List<LiveSourceBean.DataBean.LiveBean> liveSourceList;
-    private RvAdapter adapter;
+    private static  int pos=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,38 +54,59 @@ public class DrawerActivity extends BaseActivity {
         ButterKnife.bind(this);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, MainActivityExo.newInstance())
+                    .replace(R.id.container, PlayVideoFragment.newInstance())
                     .commitNow();
         }
-        adapter = new RvAdapter(R.layout.item_left_view, null);
-        adapter.addChildClickViewIds(R.id.txt_num);
-        tvRecycler.setLayoutManager(new V7LinearLayoutManager(this));
-        tvRecycler.setAdapter(adapter);
-        tvRecycler.setGainFocusListener(new TvRecyclerView.FocusGainListener() {
-            @Override
-            public void onFocusGain(View child, View focued) {
-            }
-        });
+
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         mainViewModel.getLiveList().observe(this, liveSourceBean -> {
             liveSourceList = liveSourceBean.getData().getLive();
-            adapter.setNewData(liveSourceList);
+            initViews();
+
         });
 
+    }
+    private void initViews() {
+        pos=0;
+        mHgv.setNumColumns(1);
+        mHgv.setItemSpacing(20);
+        mHgv.setGravity(Gravity.CENTER_VERTICAL);
+        mHgv.setOnChildViewHolderSelectedListener(new OnChildViewHolderSelectedListener() {
+            @Override
+            public void onChildViewHolderSelected(RecyclerView parent, RecyclerView.ViewHolder child, int position, int subposition) {
+                super.onChildViewHolderSelected(parent, child, position, subposition);
+                LogUtils.e("onChildViewHolderSelected() returned: " + position);
+                pos=position;
+            }
+
+            @Override
+            public void onChildViewHolderSelectedAndPositioned(RecyclerView parent, RecyclerView.ViewHolder child, int position, int subposition) {
+                super.onChildViewHolderSelectedAndPositioned(parent, child, position, subposition);
+            }
+        });
+        HPresenter presenter=new HPresenter();
+        ArrayObjectAdapter objectAdapter=new ArrayObjectAdapter(presenter);
+        objectAdapter.addAll(0,liveSourceList);
+        ItemBridgeAdapter bridgeAdapter=new ItemBridgeAdapter(objectAdapter);
+        mHgv.setAdapter(bridgeAdapter);
+        mHgv.requestFocus();
+        FocusHighlightHelper.setupHeaderItemFocusHighlight(bridgeAdapter);
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_A:
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
             case KeyEvent.KEYCODE_MENU:
                 if (isShowMu) {
                     if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
                         drawerLayout.closeDrawer(Gravity.LEFT);
                     } else {
                         drawerLayout.openDrawer(Gravity.LEFT);
-                        tvRecycler.requestFocus();
+//                        if (!tvRecycler.hasFocus())
+//                            tvRecycler.requestFocus();
                     }
                 } else {
                     ToastUtil.showLong("广告时间,暂时无法切换频道");
@@ -88,7 +118,7 @@ public class DrawerActivity extends BaseActivity {
                 if (isShowMu) {
                     if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
                         drawerLayout.closeDrawer(Gravity.LEFT);
-                        EventBus.getDefault().post(new LiveChannel(liveSourceList.get(tvRecycler.getmLastFocusPosition()).getUrl()));
+                        EventBus.getDefault().post(new LiveChannel(liveSourceList.get(pos).getUrl()));
                     }
                 } else {
                     if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {

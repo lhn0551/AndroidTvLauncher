@@ -6,7 +6,7 @@
     <TextView
         android:layout_marginTop="@dimen/dp_10"
         android:layout_marginEnd="@dimen/dp_40"
-        android:id="@+id/txt_num"
+        android:id="@+id/tv_index"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_30"
         android:background="@drawable/bg_left_item"

@@ -1,15 +1,20 @@
 package com.zdkj.androidtvlauncher.ui;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.danikula.videocache.HttpProxyCacheServer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -29,6 +34,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.zdkj.androidtvlauncher.R;
 import com.zdkj.androidtvlauncher.base.MyApp;
+import com.zdkj.androidtvlauncher.models.ImageBean;
 import com.zdkj.androidtvlauncher.models.VideoBean;
 import com.zdkj.androidtvlauncher.msgs.AfterPlay;
 import com.zdkj.androidtvlauncher.msgs.LiveChannel;
@@ -51,8 +57,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class MainActivityExo extends Fragment implements NetStateChangeObserver, EventListener {
+public class PlayVideoFragment extends Fragment implements NetStateChangeObserver, EventListener {
 
+    @BindView(R.id.iv_ad)
+    ImageView ivAd;
+    @BindView(R.id.tv_Timer)
+    TextView tvTimer;
     private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
     @BindView(R.id.videoView)
     PlayerView videoView;
@@ -62,9 +72,10 @@ public class MainActivityExo extends Fragment implements NetStateChangeObserver,
     private DataSource.Factory dataSourceFactory;
     private ConcatenatingMediaSource concatenatedSource;
     private LiveRunnable liveRunnable;
+    private boolean isLive;
 
-    public static MainActivityExo newInstance() {
-        return new MainActivityExo();
+    public static PlayVideoFragment newInstance() {
+        return new PlayVideoFragment();
     }
 
     @Override
@@ -79,7 +90,11 @@ public class MainActivityExo extends Fragment implements NetStateChangeObserver,
         initData();
         return view;
     }
+    private CountDownTimer timer;
 
+    /**
+     * 请求数据
+     */
     private void initData() {
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         if (NetUtils.isNetworkConnected(getActivity())) {
@@ -91,11 +106,48 @@ public class MainActivityExo extends Fragment implements NetStateChangeObserver,
                     .observe(getViewLifecycleOwner(), afterPlayingBean -> {
                         if (afterPlayingBean.getData().getDelete().equals("1")) {
                             mainViewModel.updatePlayList();
+                            isLive = false;
+                        } else if (afterPlayingBean.getData().getDelete().equals("2")) {
+                            mainViewModel.updateImageList();
+                            isLive = true;
                         }
                     });
+            mainViewModel.getImageList().observe(getViewLifecycleOwner(), imageBean -> {
+                List<ImageBean.DataBean> imageList = imageBean.getData();
+                if (isLive && imageList.size() > 0) {
+                    showLivePic(imageList.get(0).getImage_url());
+//                    Timer timer=new Ti
+                    if (timer==null){
+                        tvTimer.setVisibility(View.VISIBLE);
+                        CountDown(imageList.get(0).getTimestr());
+                        timer=null;
+                    }
+
+                }
+            });
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private void CountDown(int time) {
+        timer = new CountDownTimer(time * 1000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                tvTimer.setText(getResources().getString(R.string.adtimer) + "\t"+millisUntilFinished / 1000+"\t");
+            }
+
+            @Override
+            public void onFinish() {
+                showLivePic(null);
+                tvTimer.setVisibility(View.GONE);
+            }
+        }.start();
+
+    }
+
+    /**
+     * 初始化播放器
+     */
     private void initPlayer() {
         liveRunnable = new LiveRunnable();
         DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter.Builder(getActivity()).build();
@@ -119,16 +171,18 @@ public class MainActivityExo extends Fragment implements NetStateChangeObserver,
             @Override
             public void onPositionDiscontinuity(int reason) {
                 if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
-                    EventBus.getDefault().post(new AfterPlay());
+                    EventBus.getDefault().post(new AfterPlay(player.getCurrentTag() + ""));
                     LogUtils.e("正在播放=" + player.getCurrentTag());
                 }
             }
         });
     }
 
+    /**
+     * @param channel 直播流换台
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void changeChannel(LiveChannel channel) {
-        LogUtils.e("hubkauke3");
         if (player != null) {
             HlsMediaSource source = new HlsMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(Uri.parse(channel.getUrl()));
@@ -143,14 +197,31 @@ public class MainActivityExo extends Fragment implements NetStateChangeObserver,
         player.release();
         EventBus.getDefault().unregister(this);
         stopThreadPool();
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
 
     }
 
+    private void showLivePic(String imgUrl) {
+        if (imgUrl != null) {
+            Glide.with(this).load(imgUrl).into(ivAd);
+        } else
+            ivAd.setImageDrawable(null);
+    }
+
+    /**
+     * @param afterPlay 分成接口
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void LiveAfterPlay(AfterPlay afterPlay) {
-        mainViewModel.LiveAfterPlay(player.getCurrentTag() + "");
+        mainViewModel.LiveAfterPlay(afterPlay.getId());
     }
 
+    /**
+     * 播放视频
+     */
     private void playVideo() {
         if (videoList.size() == 0) {
             return;
@@ -163,9 +234,9 @@ public class MainActivityExo extends Fragment implements NetStateChangeObserver,
             player.prepare(mediaSource);
             player.setPlayWhenReady(true);
             startThreadPool();
-            DrawerActivity.isShowMu=true;
+            DrawerActivity.isShowMu = true;
         } else {
-            DrawerActivity.isShowMu=false;
+            DrawerActivity.isShowMu = false;
             clearConcatenatedSource();
             stopThreadPool();
             HttpProxyCacheServer proxy = HttpProxyCacheUtil.getVideoProxy();
@@ -183,6 +254,9 @@ public class MainActivityExo extends Fragment implements NetStateChangeObserver,
 
     }
 
+    /**
+     * 删除广告数据列表
+     */
     private void clearConcatenatedSource() {
         if (concatenatedSource != null) {
             concatenatedSource.clear();
@@ -223,6 +297,9 @@ public class MainActivityExo extends Fragment implements NetStateChangeObserver,
         NetStateChangeReceiver.unregisterObserver(this);
     }
 
+    /**
+     * 直播轮询进程池
+     */
     private void startThreadPool() {
         if (exec == null) {
             exec = new ScheduledThreadPoolExecutor(1);
@@ -240,7 +317,7 @@ public class MainActivityExo extends Fragment implements NetStateChangeObserver,
     class LiveRunnable implements Runnable {
         @Override
         public void run() {
-            EventBus.getDefault().post(new AfterPlay());
+            EventBus.getDefault().post(new AfterPlay(player.getCurrentTag() + ""));
         }
     }
 }

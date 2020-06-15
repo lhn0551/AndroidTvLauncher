@@ -12,6 +12,7 @@ public class AppNetWork {
     public static final String DOWNLOADFINISHED = BASE_URL + "video/download_finish?key=";//下载完成通知后台接口
     public static final String AFTERFINISHPLAYING = BASE_URL + "video/play_finish?key=";//播放完视频分成接口
     public static final String LIVELIST = BASE_URL + "video/live_broadcast";//播放完视频分成接口
+    public static final String IMAGELIST = BASE_URL + "video/image_list?key=";//播放完视频分成接口
 
 
 }

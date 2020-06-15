@@ -96,7 +96,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
             @Override
             public void onFinish() {
                 if (isJumpMain) {
-                    startActivity(new Intent(LoginActivity.this, MainActivityExo.class));
+                    startActivity(new Intent(LoginActivity.this, PlayVideoFragment.class));
 //                    startActivity(new Intent(LoginActivity.this, TikTokActivity.class));
                     finish();
                 } else {

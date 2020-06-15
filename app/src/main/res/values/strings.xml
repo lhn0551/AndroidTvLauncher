@@ -4,4 +4,6 @@
     <string name="browse_title">"整点科技"</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="adtimer">广告倒计时</string>
+    <string name="channel">直播频道</string>
 </resources>

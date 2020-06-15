@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.zdkj.androidtvlauncher.api.AppNetWork;
 import com.zdkj.androidtvlauncher.models.AfterPlayingBean;
+import com.zdkj.androidtvlauncher.models.ImageBean;
 import com.zdkj.androidtvlauncher.models.LiveSourceBean;
 import com.zdkj.androidtvlauncher.models.VideoBean;
 import com.zdkj.androidtvlauncher.utils.LogUtils;
@@ -23,6 +24,7 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<AfterPlayingBean> afterPlayLiveData = new MutableLiveData<>();
     private MutableLiveData<LiveSourceBean> liveData = new MutableLiveData<>();
     private MutableLiveData<String> liveSource = new MutableLiveData<>();
+    private MutableLiveData<ImageBean> imageListData = new MutableLiveData<>();
 
     LiveData<String> getNewSource() {
 
@@ -37,6 +39,30 @@ public class MainViewModel extends ViewModel {
         //获取数据
         loadVideoList();
         return videoLiveData;
+    }
+    LiveData<ImageBean> getImageList() {
+        //获取数据
+        loadImageList();
+        return imageListData;
+    }
+    public void updateImageList(){
+        loadImageList();
+    }
+    @SuppressLint("CheckResult")
+    private void loadImageList() {
+        RxHttp.get(AppNetWork.IMAGELIST + getAndroidId())
+                .asClass(ImageBean.class)
+                .observeOn(AndroidSchedulers.mainThread())   //控制下游在主线程执行
+                .doOnSubscribe(disposable -> {
+                })
+                .doFinally(() -> {
+                })
+                .subscribe(s -> {
+                    if (s.getCode() == 200) {
+                        imageListData.postValue(s);
+                    }
+                }, throwable -> {
+                });
     }
 
     LiveData<LiveSourceBean> getLiveList() {

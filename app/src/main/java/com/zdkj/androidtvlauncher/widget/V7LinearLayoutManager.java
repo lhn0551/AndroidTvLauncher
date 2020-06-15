@@ -26,6 +26,7 @@ public class V7LinearLayoutManager extends LinearLayoutManager {
         super(context, attrs, defStyleAttr, 0);
     }
 
+
     @Override
     public boolean requestChildRectangleOnScreen(RecyclerView parent, View child, Rect rect, boolean immediate, boolean focusedChildVisible) {
         if(parent instanceof TvRecyclerView) {
