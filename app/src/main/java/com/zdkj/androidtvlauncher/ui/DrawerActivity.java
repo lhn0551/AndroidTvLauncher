@@ -105,6 +105,7 @@ public class DrawerActivity extends BaseActivity {
                         drawerLayout.closeDrawer(Gravity.LEFT);
                     } else {
                         drawerLayout.openDrawer(Gravity.LEFT);
+                        mHgv.requestFocus();
 //                        if (!tvRecycler.hasFocus())
 //                            tvRecycler.requestFocus();
                     }

@@ -40,6 +40,7 @@ import com.zdkj.androidtvlauncher.msgs.AfterPlay;
 import com.zdkj.androidtvlauncher.msgs.LiveChannel;
 import com.zdkj.androidtvlauncher.utils.HttpProxyCacheUtil;
 import com.zdkj.androidtvlauncher.utils.LogUtils;
+import com.zdkj.androidtvlauncher.utils.MyTextView;
 import com.zdkj.androidtvlauncher.utils.NetStateChangeObserver;
 import com.zdkj.androidtvlauncher.utils.NetStateChangeReceiver;
 import com.zdkj.androidtvlauncher.utils.NetworkType;
@@ -63,16 +64,20 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
     ImageView ivAd;
     @BindView(R.id.tv_Timer)
     TextView tvTimer;
-    private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
+    @BindView(R.id.tv_ad)
+    MyTextView tvAd;
     @BindView(R.id.videoView)
     PlayerView videoView;
+    private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
     private List<VideoBean.DataBean> videoList = new ArrayList<>();
     private MainViewModel mainViewModel;
     private SimpleExoPlayer player;
     private DataSource.Factory dataSourceFactory;
     private ConcatenatingMediaSource concatenatedSource;
     private LiveRunnable liveRunnable;
-    private boolean isLive;
+    private boolean isLive=true;
+    private boolean isTextShow = true;
+    private CountDownTimer timer;
 
     public static PlayVideoFragment newInstance() {
         return new PlayVideoFragment();
@@ -90,7 +95,6 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
         initData();
         return view;
     }
-    private CountDownTimer timer;
 
     /**
      * 请求数据
@@ -102,30 +106,63 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
                 videoList = videoBean.getData();
                 playVideo();
             });
+
             mainViewModel.getAfterPlay(player.getCurrentTag() + "")
                     .observe(getViewLifecycleOwner(), afterPlayingBean -> {
                         if (afterPlayingBean.getData().getDelete().equals("1")) {
                             mainViewModel.updatePlayList();
-                            isLive = false;
                         } else if (afterPlayingBean.getData().getDelete().equals("2")) {
                             mainViewModel.updateImageList();
-                            isLive = true;
+                        } else if (afterPlayingBean.getData().getDelete().equals("3")) {
+                            isLive = false;
+//                            getAdText();
+                            mainViewModel.updateTextList();
                         }
                     });
+
             mainViewModel.getImageList().observe(getViewLifecycleOwner(), imageBean -> {
                 List<ImageBean.DataBean> imageList = imageBean.getData();
                 if (isLive && imageList.size() > 0) {
+                    isLive=false;
                     showLivePic(imageList.get(0).getImage_url());
 //                    Timer timer=new Ti
-                    if (timer==null){
+                    if (timer == null) {
                         tvTimer.setVisibility(View.VISIBLE);
                         CountDown(imageList.get(0).getTimestr());
-                        timer=null;
+                        timer = null;
                     }
 
                 }
             });
         }
+
+        mainViewModel.getTextList().observe(getViewLifecycleOwner(), textBean -> {
+            if (isTextShow && textBean.getData().size() > 0) {
+                isTextShow = false;
+                tvAd.setVisibility(View.VISIBLE);
+                tvAd.setText(textBean.getData().get(0).getTxt());
+                tvAd.setSelected(true);
+                tvAd.setMarqueeListener(new MyTextView.OnMarqueeListener() {
+                    @Override
+                    public void onMarqueeRepeateChanged(int repeatLimit) {
+                        LogUtils.e("reaaaa" + repeatLimit);
+                        isTextShow = true;
+                        tvAd.setVisibility(View.GONE);
+                        tvAd.setText("");
+                    }
+                });
+//                tvAd.startFor0();
+//                tvAd.setOnMarqueeCompleteListener(() -> {
+//                    LogUtils.e("TAGTAGTAGTAG");
+//                    isTextShow=true;
+//                    tvAd.startStopMarquee(false);
+//                    tvAd.setVisibility(View.GONE);
+//                    tvAd.setText("");
+//                });
+
+
+            }
+        });
     }
 
     @SuppressLint("SetTextI18n")
@@ -133,13 +170,14 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
         timer = new CountDownTimer(time * 1000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                tvTimer.setText(getResources().getString(R.string.adtimer) + "\t"+millisUntilFinished / 1000+"\t");
+                tvTimer.setText(getResources().getString(R.string.adtimer) + "\t" + millisUntilFinished / 1000 + "\t");
             }
 
             @Override
             public void onFinish() {
                 showLivePic(null);
                 tvTimer.setVisibility(View.GONE);
+                isLive=true;
             }
         }.start();
 
@@ -149,7 +187,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
      * 初始化播放器
      */
     private void initPlayer() {
-        liveRunnable = new LiveRunnable();
+
         DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter.Builder(getActivity()).build();
         dataSourceFactory = new DefaultDataSourceFactory(MyApp.getInstance(), BANDWIDTH_METER,
                 new DefaultHttpDataSourceFactory(Util.getUserAgent(MyApp.getInstance(), "电视推广"), BANDWIDTH_METER));
@@ -176,6 +214,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
                 }
             }
         });
+
     }
 
     /**
@@ -216,6 +255,9 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void LiveAfterPlay(AfterPlay afterPlay) {
+        if (afterPlay.getId().equals("")) {
+            return;
+        }
         mainViewModel.LiveAfterPlay(afterPlay.getId());
     }
 
@@ -301,10 +343,11 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
      * 直播轮询进程池
      */
     private void startThreadPool() {
+        liveRunnable = new LiveRunnable();
         if (exec == null) {
             exec = new ScheduledThreadPoolExecutor(1);
         }
-        exec.scheduleAtFixedRate(liveRunnable, 1000, 15000, TimeUnit.MILLISECONDS);
+        exec.scheduleAtFixedRate(liveRunnable, 15000, 30000, TimeUnit.MILLISECONDS);
     }
 
     private void stopThreadPool() {
@@ -313,6 +356,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
             exec = null;
         }
     }
+
 
     class LiveRunnable implements Runnable {
         @Override

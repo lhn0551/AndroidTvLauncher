@@ -10,8 +10,11 @@ import com.zdkj.androidtvlauncher.api.AppNetWork;
 import com.zdkj.androidtvlauncher.models.AfterPlayingBean;
 import com.zdkj.androidtvlauncher.models.ImageBean;
 import com.zdkj.androidtvlauncher.models.LiveSourceBean;
+import com.zdkj.androidtvlauncher.models.TextBean;
 import com.zdkj.androidtvlauncher.models.VideoBean;
 import com.zdkj.androidtvlauncher.utils.LogUtils;
+
+import org.w3c.dom.Text;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import rxhttp.wrapper.param.RxHttp;
@@ -25,16 +28,13 @@ public class MainViewModel extends ViewModel {
     private MutableLiveData<LiveSourceBean> liveData = new MutableLiveData<>();
     private MutableLiveData<String> liveSource = new MutableLiveData<>();
     private MutableLiveData<ImageBean> imageListData = new MutableLiveData<>();
+    private MutableLiveData<TextBean> TextListData = new MutableLiveData<>();
 
-    LiveData<String> getNewSource() {
-
-        return liveSource;
+    LiveData<TextBean> getTextList() {
+        //获取数据
+        loadTextList();
+        return TextListData;
     }
-
-    public void changeLiveSource(String url) {
-        liveSource.postValue(url);
-    }
-
     LiveData<VideoBean> getPlayList() {
         //获取数据
         loadVideoList();
@@ -47,6 +47,25 @@ public class MainViewModel extends ViewModel {
     }
     public void updateImageList(){
         loadImageList();
+    }
+    public void updateTextList(){
+        loadTextList();
+    }
+    @SuppressLint("CheckResult")
+    private void loadTextList() {
+        RxHttp.get(AppNetWork.TEXTLIST + getAndroidId())
+                .asClass(TextBean.class)
+                .observeOn(AndroidSchedulers.mainThread())   //控制下游在主线程执行
+                .doOnSubscribe(disposable -> {
+                })
+                .doFinally(() -> {
+                })
+                .subscribe(s -> {
+                    if (s.getCode() == 200) {
+                        TextListData.postValue(s);
+                    }
+                }, throwable -> {
+                });
     }
     @SuppressLint("CheckResult")
     private void loadImageList() {

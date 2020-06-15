@@ -13,6 +13,7 @@ public class AppNetWork {
     public static final String AFTERFINISHPLAYING = BASE_URL + "video/play_finish?key=";//播放完视频分成接口
     public static final String LIVELIST = BASE_URL + "video/live_broadcast";//播放完视频分成接口
     public static final String IMAGELIST = BASE_URL + "video/image_list?key=";//播放完视频分成接口
+    public static final String TEXTLIST = BASE_URL + "video/txt_list?key=";//播放完视频分成接口
 
 
 }

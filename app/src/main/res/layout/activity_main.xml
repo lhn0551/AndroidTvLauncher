@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -25,5 +26,20 @@
         android:textColor="@color/ytbv_white"
         android:textSize="@dimen/sp_12"
         android:textStyle="italic" />
+
+    <com.zdkj.androidtvlauncher.utils.MyTextView
+        android:id="@+id/tv_ad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        android:layout_gravity="bottom"
+        android:focusable="true"
+        android:singleLine="true"
+        android:textColor="@color/ytbv_white"
+        android:textSize="@dimen/sp_18"
+        android:gravity="center_vertical"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="1"/>
 
 </FrameLayout>
