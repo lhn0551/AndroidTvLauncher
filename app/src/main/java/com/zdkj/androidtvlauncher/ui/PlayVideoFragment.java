@@ -60,6 +60,7 @@ import butterknife.ButterKnife;
 
 public class PlayVideoFragment extends Fragment implements NetStateChangeObserver, EventListener {
 
+    private static String playerId;
     @BindView(R.id.iv_ad)
     ImageView ivAd;
     @BindView(R.id.tv_Timer)
@@ -74,8 +75,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
     private SimpleExoPlayer player;
     private DataSource.Factory dataSourceFactory;
     private ConcatenatingMediaSource concatenatedSource;
-    private LiveRunnable liveRunnable;
-    private boolean isLive=true;
+    private boolean isLive = true;
     private boolean isTextShow = true;
     private CountDownTimer timer;
 
@@ -107,29 +107,37 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
                 playVideo();
             });
 
-            mainViewModel.getAfterPlay(player.getCurrentTag() + "")
+            mainViewModel.getAfterPlay(playerId + "")
                     .observe(getViewLifecycleOwner(), afterPlayingBean -> {
-                        if (afterPlayingBean.getData().getDelete().equals("1")) {
-                            mainViewModel.updatePlayList();
-                        } else if (afterPlayingBean.getData().getDelete().equals("2")) {
-                            mainViewModel.updateImageList();
-                        } else if (afterPlayingBean.getData().getDelete().equals("3")) {
-                            isLive = false;
-//                            getAdText();
-                            mainViewModel.updateTextList();
+                        if (playerId == null) {
+                            return;
+                        }
+                        switch (afterPlayingBean.getData().getDelete()) {
+                            case "1":
+                                mainViewModel.updatePlayList();
+                                break;
+                            case "2":
+                                mainViewModel.updateImageList();
+                                break;
+                            case "3":
+                                mainViewModel.updateTextList();
+                                break;
                         }
                     });
 
             mainViewModel.getImageList().observe(getViewLifecycleOwner(), imageBean -> {
+                if (playerId == null) {
+                    return;
+                }
                 List<ImageBean.DataBean> imageList = imageBean.getData();
                 if (isLive && imageList.size() > 0) {
-                    isLive=false;
+                    isLive = false;
                     showLivePic(imageList.get(0).getImage_url());
-//                    Timer timer=new Ti
                     if (timer == null) {
                         tvTimer.setVisibility(View.VISIBLE);
                         CountDown(imageList.get(0).getTimestr());
                         timer = null;
+                        isLive = true;
                     }
 
                 }
@@ -137,29 +145,20 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
         }
 
         mainViewModel.getTextList().observe(getViewLifecycleOwner(), textBean -> {
+            if (playerId == null) {
+                return;
+            }
             if (isTextShow && textBean.getData().size() > 0) {
                 isTextShow = false;
                 tvAd.setVisibility(View.VISIBLE);
                 tvAd.setText(textBean.getData().get(0).getTxt());
                 tvAd.setSelected(true);
-                tvAd.setMarqueeListener(new MyTextView.OnMarqueeListener() {
-                    @Override
-                    public void onMarqueeRepeateChanged(int repeatLimit) {
-                        LogUtils.e("reaaaa" + repeatLimit);
-                        isTextShow = true;
-                        tvAd.setVisibility(View.GONE);
-                        tvAd.setText("");
-                    }
+                tvAd.setMarqueeListener(repeatLimit -> {
+                    LogUtils.e("剩余滚动次数:" + repeatLimit);
+                    isTextShow = true;
+                    tvAd.setVisibility(View.GONE);
+                    tvAd.setText("");
                 });
-//                tvAd.startFor0();
-//                tvAd.setOnMarqueeCompleteListener(() -> {
-//                    LogUtils.e("TAGTAGTAGTAG");
-//                    isTextShow=true;
-//                    tvAd.startStopMarquee(false);
-//                    tvAd.setVisibility(View.GONE);
-//                    tvAd.setText("");
-//                });
-
 
             }
         });
@@ -177,7 +176,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
             public void onFinish() {
                 showLivePic(null);
                 tvTimer.setVisibility(View.GONE);
-                isLive=true;
+                isLive = true;
             }
         }.start();
 
@@ -204,13 +203,18 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
 
             @Override
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if (playWhenReady) {
+                    playerId = player.getCurrentTag() + "";
+                    LogUtils.e("正在播放视频ID" + playerId);
+                }
+
             }
 
             @Override
             public void onPositionDiscontinuity(int reason) {
                 if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
-                    EventBus.getDefault().post(new AfterPlay(player.getCurrentTag() + ""));
-                    LogUtils.e("正在播放=" + player.getCurrentTag());
+                    EventBus.getDefault().post(new AfterPlay(playerId + ""));
+                    LogUtils.e("切换视频=" + playerId);
                 }
             }
         });
@@ -243,6 +247,11 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
 
     }
 
+    /**
+     * Live ad show (gif&pic)
+     *
+     * @param imgUrl gir/pic url
+     */
     private void showLivePic(String imgUrl) {
         if (imgUrl != null) {
             Glide.with(this).load(imgUrl).into(ivAd);
@@ -279,7 +288,11 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
             DrawerActivity.isShowMu = true;
         } else {
             DrawerActivity.isShowMu = false;
-            clearConcatenatedSource();
+            if (concatenatedSource != null) {
+                concatenatedSource.clear();
+            } else {
+                concatenatedSource = new ConcatenatingMediaSource();
+            }
             stopThreadPool();
             HttpProxyCacheServer proxy = HttpProxyCacheUtil.getVideoProxy();
             for (int i = 0; i < videoList.size(); i++) {
@@ -296,16 +309,6 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
 
     }
 
-    /**
-     * 删除广告数据列表
-     */
-    private void clearConcatenatedSource() {
-        if (concatenatedSource != null) {
-            concatenatedSource.clear();
-        } else {
-            concatenatedSource = new ConcatenatingMediaSource();
-        }
-    }
 
     @Override
     public void onResume() {
@@ -343,11 +346,10 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
      * 直播轮询进程池
      */
     private void startThreadPool() {
-        liveRunnable = new LiveRunnable();
         if (exec == null) {
             exec = new ScheduledThreadPoolExecutor(1);
         }
-        exec.scheduleAtFixedRate(liveRunnable, 15000, 30000, TimeUnit.MILLISECONDS);
+        exec.scheduleAtFixedRate(new LiveRunnable(), 15000, 30000, TimeUnit.MILLISECONDS);
     }
 
     private void stopThreadPool() {
@@ -358,10 +360,10 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
     }
 
 
-    class LiveRunnable implements Runnable {
+    static class LiveRunnable implements Runnable {
         @Override
         public void run() {
-            EventBus.getDefault().post(new AfterPlay(player.getCurrentTag() + ""));
+            EventBus.getDefault().post(new AfterPlay(playerId + ""));
         }
     }
 }

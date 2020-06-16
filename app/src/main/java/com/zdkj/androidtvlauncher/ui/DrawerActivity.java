@@ -3,9 +3,9 @@ package com.zdkj.androidtvlauncher.ui;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.FocusHighlightHelper;
@@ -17,18 +17,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.zdkj.androidtvlauncher.R;
 import com.zdkj.androidtvlauncher.adapter.HPresenter;
-import com.zdkj.androidtvlauncher.adapter.RvAdapter;
 import com.zdkj.androidtvlauncher.base.BaseActivity;
 import com.zdkj.androidtvlauncher.models.LiveSourceBean;
 import com.zdkj.androidtvlauncher.msgs.LiveChannel;
 import com.zdkj.androidtvlauncher.utils.LogUtils;
 import com.zdkj.androidtvlauncher.utils.ToastUtil;
-import com.zdkj.androidtvlauncher.widget.TvRecyclerView;
-import com.zdkj.androidtvlauncher.widget.V7LinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -37,6 +33,7 @@ import butterknife.ButterKnife;
 public class DrawerActivity extends BaseActivity {
 
     public static boolean isShowMu;
+    private static int pos = 0;
     @BindView(R.id.container)
     FrameLayout container;
     @BindView(R.id.drawer_layout)
@@ -45,7 +42,6 @@ public class DrawerActivity extends BaseActivity {
     VerticalGridView mHgv;
     private MainViewModel mainViewModel;
     private List<LiveSourceBean.DataBean.LiveBean> liveSourceList;
-    private static  int pos=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +63,9 @@ public class DrawerActivity extends BaseActivity {
         });
 
     }
+
     private void initViews() {
-        pos=0;
+        pos = 0;
         mHgv.setNumColumns(1);
         mHgv.setItemSpacing(20);
         mHgv.setGravity(Gravity.CENTER_VERTICAL);
@@ -77,7 +74,7 @@ public class DrawerActivity extends BaseActivity {
             public void onChildViewHolderSelected(RecyclerView parent, RecyclerView.ViewHolder child, int position, int subposition) {
                 super.onChildViewHolderSelected(parent, child, position, subposition);
                 LogUtils.e("onChildViewHolderSelected() returned: " + position);
-                pos=position;
+                pos = position;
             }
 
             @Override
@@ -85,10 +82,10 @@ public class DrawerActivity extends BaseActivity {
                 super.onChildViewHolderSelectedAndPositioned(parent, child, position, subposition);
             }
         });
-        HPresenter presenter=new HPresenter();
-        ArrayObjectAdapter objectAdapter=new ArrayObjectAdapter(presenter);
-        objectAdapter.addAll(0,liveSourceList);
-        ItemBridgeAdapter bridgeAdapter=new ItemBridgeAdapter(objectAdapter);
+        HPresenter presenter = new HPresenter();
+        ArrayObjectAdapter objectAdapter = new ArrayObjectAdapter(presenter);
+        objectAdapter.addAll(0, liveSourceList);
+        ItemBridgeAdapter bridgeAdapter = new ItemBridgeAdapter(objectAdapter);
         mHgv.setAdapter(bridgeAdapter);
         mHgv.requestFocus();
         FocusHighlightHelper.setupHeaderItemFocusHighlight(bridgeAdapter);
@@ -101,13 +98,11 @@ public class DrawerActivity extends BaseActivity {
             case KeyEvent.KEYCODE_DPAD_RIGHT:
             case KeyEvent.KEYCODE_MENU:
                 if (isShowMu) {
-                    if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                        drawerLayout.closeDrawer(Gravity.LEFT);
+                    if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        drawerLayout.closeDrawer(GravityCompat.START);
                     } else {
-                        drawerLayout.openDrawer(Gravity.LEFT);
+                        drawerLayout.openDrawer(GravityCompat.START);
                         mHgv.requestFocus();
-//                        if (!tvRecycler.hasFocus())
-//                            tvRecycler.requestFocus();
                     }
                 } else {
                     ToastUtil.showLong("广告时间,暂时无法切换频道");
@@ -117,13 +112,13 @@ public class DrawerActivity extends BaseActivity {
             case KeyEvent.KEYCODE_DPAD_CENTER:
 
                 if (isShowMu) {
-                    if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                        drawerLayout.closeDrawer(Gravity.LEFT);
+                    if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         EventBus.getDefault().post(new LiveChannel(liveSourceList.get(pos).getUrl()));
                     }
                 } else {
-                    if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                        drawerLayout.closeDrawer(Gravity.LEFT);
+                    if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        drawerLayout.closeDrawer(GravityCompat.START);
                     }
                     ToastUtil.showLong("广告时间,暂时无法切换频道");
                 }

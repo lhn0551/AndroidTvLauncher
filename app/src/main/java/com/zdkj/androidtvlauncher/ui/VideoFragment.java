@@ -2,22 +2,17 @@ package com.zdkj.androidtvlauncher.ui;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -34,8 +29,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.IOException;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link VideoFragment#newInstance} factory method to
@@ -48,13 +41,26 @@ public class VideoFragment extends Fragment implements Player.EventListener {
     private SimpleExoPlayer player;
     private MainViewModel mainViewModel;
 
+    public VideoFragment() {
+    }
+
     public static VideoFragment newInstance() {
         return new VideoFragment();
     }
 
-    public VideoFragment() {
+    private static boolean isBehindLiveWindow(ExoPlaybackException e) {
+        if (e.type != ExoPlaybackException.TYPE_SOURCE) {
+            return false;
+        }
+        Throwable cause = e.getSourceException();
+        while (cause != null) {
+            if (cause instanceof BehindLiveWindowException) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -83,7 +89,6 @@ public class VideoFragment extends Fragment implements Player.EventListener {
         }
     }
 
-
     private void initPlayer() {
         DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter.Builder(getActivity()).build();
         dataSourceFactory = new DefaultDataSourceFactory(MyApp.getInstance(), BANDWIDTH_METER,
@@ -97,6 +102,7 @@ public class VideoFragment extends Fragment implements Player.EventListener {
         player.prepare(mediaSource, true, true);
         player.setPlayWhenReady(true);
     }
+
     @Override
     public void onPlayerError(ExoPlaybackException e) {
         if (isBehindLiveWindow(e)) {
@@ -105,18 +111,5 @@ public class VideoFragment extends Fragment implements Player.EventListener {
         } else {
             // Handle other errors
         }
-    }
-    private static boolean isBehindLiveWindow(ExoPlaybackException e) {
-        if (e.type != ExoPlaybackException.TYPE_SOURCE) {
-            return false;
-        }
-        Throwable cause = e.getSourceException();
-        while (cause != null) {
-            if (cause instanceof BehindLiveWindowException) {
-                return true;
-            }
-            cause = cause.getCause();
-        }
-        return false;
     }
 }

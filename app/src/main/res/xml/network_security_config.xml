@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-<!--    <domain-config cleartextTrafficPermitted="tr">-->
-<!--&lt;!&ndash;        <domain includeSubdomains="true">ad.zadtek.com</domain>&ndash;&gt;-->
-<!--    </domain-config>-->
+    <!--    <domain-config cleartextTrafficPermitted="tr">-->
+    <!--&lt;!&ndash;        <domain includeSubdomains="true">ad.zadtek.com</domain>&ndash;&gt;-->
+    <!--    </domain-config>-->
 </network-security-config>

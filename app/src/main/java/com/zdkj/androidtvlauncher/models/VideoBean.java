@@ -39,7 +39,7 @@ public class VideoBean implements Serializable {
         this.data = data;
     }
 
-    public static class DataBean implements Serializable{
+    public static class DataBean implements Serializable {
         /**
          * video_id : 1
          * video_url : http://ad.zadtek.com/uploads/video/0001.mp4

@@ -7,7 +7,6 @@ import android.view.FocusFinder;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -39,9 +38,6 @@ public class TvRecyclerView extends RecyclerView {
     //最后一次聚焦的位置
     private int mLastFocusPosition = 0;
     private View mLastFocusView = null;
-public int getLastFocusPosition(){
-    return  mLastFocusPosition;
-}
 
     public TvRecyclerView(Context context) {
         super(context);
@@ -58,6 +54,9 @@ public int getLastFocusPosition(){
         init();
     }
 
+    public int getLastFocusPosition() {
+        return mLastFocusPosition;
+    }
 
     public void init() {
         setItemAnimator(null);
@@ -83,14 +82,14 @@ public int getLastFocusPosition(){
     @Override
     public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
         LogUtils.e("views = " + views);
-       LogUtils.e("lastFocusView = " + mLastFocusView + " mLastFocusPosition = " + mLastFocusPosition);
+        LogUtils.e("lastFocusView = " + mLastFocusView + " mLastFocusPosition = " + mLastFocusPosition);
         if (this.hasFocus() || mLastFocusView == null) {
             //在recyclerview内部焦点切换
             super.addFocusables(views, direction, focusableMode);
         } else {
             //将当前的view放到Focusable views列表中，再次移入焦点时会取到该view,实现焦点记忆功能
             views.add(getLayoutManager().findViewByPosition(mLastFocusPosition));
-           LogUtils.e("views.add(lastFocusView)");
+            LogUtils.e("views.add(lastFocusView)");
         }
     }
 
@@ -98,15 +97,15 @@ public int getLastFocusPosition(){
     public View focusSearch(View focused, int direction) {
         View realNextFocus = super.focusSearch(focused, direction);
         View nextFocus = FocusFinder.getInstance().findNextFocus(this, focused, direction);
-       LogUtils.e("focused = " + focused);
-       LogUtils.e("nextFocus = " + nextFocus);
-       LogUtils.e("realNextFocus = " + realNextFocus);
+        LogUtils.e("focused = " + focused);
+        LogUtils.e("nextFocus = " + nextFocus);
+        LogUtils.e("realNextFocus = " + realNextFocus);
         //canScrollVertically(1)  true表示能滚动，false表示已经滚动到底部
         //canScrollVertically(-1) true表示能滚动，false表示已经滚动到顶部
-       LogUtils.e("canScrollVertically(-1) = " + canScrollVertically(-1));
-       LogUtils.e("canScrollVertically(1) = " + canScrollVertically(1));
-       LogUtils.e("canScrollHorizontally(-1) = " + canScrollHorizontally(-1));
-       LogUtils.e("canScrollHorizontally(1) = " + canScrollHorizontally(1));
+        LogUtils.e("canScrollVertically(-1) = " + canScrollVertically(-1));
+        LogUtils.e("canScrollVertically(1) = " + canScrollVertically(1));
+        LogUtils.e("canScrollHorizontally(-1) = " + canScrollHorizontally(-1));
+        LogUtils.e("canScrollHorizontally(1) = " + canScrollHorizontally(1));
         switch (direction) {
             case FOCUS_RIGHT:
                 //调用移出的监听
@@ -167,7 +166,7 @@ public int getLastFocusPosition(){
     @Override
     public void requestChildFocus(View child, View focused) {
         if (null != child) {
-           LogUtils.e("nextchild = " + child + ",focused = " + focused);
+            LogUtils.e("nextchild = " + child + ",focused = " + focused);
             if (!hasFocus()) {
                 //recyclerview 子view 重新获取焦点，调用移入焦点的事件监听
                 if (mFocusGainListener != null) {
@@ -180,7 +179,7 @@ public int getLastFocusPosition(){
             //取得获得焦点的item的position
             mLastFocusView = focused;
             mLastFocusPosition = getChildViewHolder(child).getAdapterPosition();
-           LogUtils.e("focusPos = " + mLastFocusPosition);
+            LogUtils.e("focusPos = " + mLastFocusPosition);
 
             //计算控制recyclerview 选中item的居中从参数
             if (mSelectedItemCentered) {
@@ -189,8 +188,8 @@ public int getLastFocusPosition(){
                 mSelectedItemOffsetEnd = mSelectedItemOffsetStart;
             }
         }
-       LogUtils.e("mSelectedItemOffsetStart = " + mSelectedItemOffsetStart);
-       LogUtils.e("mSelectedItemOffsetEnd = " + mSelectedItemOffsetEnd);
+        LogUtils.e("mSelectedItemOffsetStart = " + mSelectedItemOffsetStart);
+        LogUtils.e("mSelectedItemOffsetEnd = " + mSelectedItemOffsetEnd);
     }
 
     /**
@@ -251,8 +250,8 @@ public int getLastFocusPosition(){
 
 
         if (dx != 0 || dy != 0) {
-           LogUtils.e("dx = " + dx);
-           LogUtils.e("dy = " + dy);
+            LogUtils.e("dx = " + dx);
+            LogUtils.e("dy = " + dy);
             if (immediate) {
                 scrollBy(0, dy);
             } else {
@@ -325,15 +324,15 @@ public int getLastFocusPosition(){
         this.mFocusLostListener = focusLostListener;
     }
 
-    public interface FocusLostListener {
-        void onFocusLost(View lastFocusChild, int direction);
-    }
-
     /**
      * 设置焦点获取监听
      */
     public void setGainFocusListener(FocusGainListener focusListener) {
         this.mFocusGainListener = focusListener;
+    }
+
+    public interface FocusLostListener {
+        void onFocusLost(View lastFocusChild, int direction);
     }
 
 

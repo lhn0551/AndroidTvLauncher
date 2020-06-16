@@ -34,7 +34,7 @@ public class ScanCodeActivity extends BaseActivity {
     @BindView(R.id.ivScan)
     ImageView ivScan;
     private String AndroidId;
-    private boolean checkBind=true;
+    private boolean checkBind = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,7 @@ public class ScanCodeActivity extends BaseActivity {
         ButterKnife.bind(this);
         getImage(KEY + getAndroidId());
         AndroidId = getAndroidId();
-         new Thread(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
                 //需要在子线程中处理的逻辑
@@ -85,7 +85,7 @@ public class ScanCodeActivity extends BaseActivity {
                     try {
                         jsonObject = new JSONObject(s);
                         if (jsonObject.getString("code").equals("200")) {
-                            checkBind=false;
+                            checkBind = false;
                             startActivity(new Intent(ScanCodeActivity.this, PlayVideoFragment.class));
 //                            startActivity(new Intent(ScanCodeActivity.this, TikTokActivity.class));
                             finish();
@@ -102,6 +102,6 @@ public class ScanCodeActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        checkBind=false;
+        checkBind = false;
     }
 }

@@ -28,7 +28,7 @@ public class RvAdapter extends BaseQuickAdapter<LiveSourceBean.DataBean.LiveBean
     @Override
     protected void convert(@NonNull BaseViewHolder helper, LiveSourceBean.DataBean.LiveBean item) {
         LogUtils.e("TAG111");
-        helper.setText(R.id.txt_num,item.getName());
+        helper.setText(R.id.txt_num, item.getName());
     }
 }
 

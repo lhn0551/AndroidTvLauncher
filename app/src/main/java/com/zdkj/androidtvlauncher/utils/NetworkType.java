@@ -10,6 +10,7 @@ public enum NetworkType {
     NETWORK_NO("No network");
 
     private String desc;
+
     NetworkType(String desc) {
         this.desc = desc;
     }

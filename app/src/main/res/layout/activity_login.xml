@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    android:orientation="vertical"
     android:gravity="center"
+    android:orientation="vertical"
     tools:context=".LoginActivity">
 
     <TextView
@@ -13,9 +13,9 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="L O G O"
-        android:textStyle="bold"
         android:textColor="#9fa1a6"
-        android:textSize="@dimen/sp_48" />
+        android:textSize="@dimen/sp_48"
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="match_parent"
@@ -32,11 +32,11 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_3"
-        android:padding="1dp"
         android:layout_marginStart="@dimen/dp_100"
         android:layout_marginTop="@dimen/dp_40"
         android:layout_marginEnd="@dimen/dp_100"
         android:max="100"
+        android:padding="1dp"
         android:progress="0"
         android:progressDrawable="@drawable/login_progress" />
 

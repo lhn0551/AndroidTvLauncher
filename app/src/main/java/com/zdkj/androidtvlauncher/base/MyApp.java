@@ -1,8 +1,6 @@
 package com.zdkj.androidtvlauncher.base;
 
 import android.app.Application;
-import android.provider.Settings;
-
 
 import com.zdkj.androidtvlauncher.utils.NetStateChangeReceiver;
 import com.zdkj.androidtvlauncher.utils.PreferencesUtil;
@@ -19,6 +17,10 @@ public class MyApp extends Application {
         return instance;
     }
 
+    public static String getAndroidId() {
+
+        return AndroidId;
+    }
 
     @Override
     public void onCreate() {
@@ -26,16 +28,10 @@ public class MyApp extends Application {
         MyApp.instance = this;
         NetStateChangeReceiver.registerReceiver(this);
 //        AndroidId=Settings.System.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        AndroidId="65f61f5df110d25d";
+        AndroidId = "65f61f5df110d25d";
         PreferencesUtil.getInstance().init(this);
         RxHttp.setDebug(true);
     }
-
-    public static String getAndroidId() {
-
-        return AndroidId;
-    }
-
 
     @Override
     public void onTerminate() {

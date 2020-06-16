@@ -13,22 +13,10 @@ import java.util.List;
 
 public class NetStateChangeReceiver extends BroadcastReceiver {
 
-    private static class InstanceHolder {
-        private static final NetStateChangeReceiver INSTANCE = new NetStateChangeReceiver();
-    }
-
     private List<NetStateChangeObserver> mObservers = new ArrayList<>();
 
     public NetStateChangeReceiver() {
 
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
-            NetworkType networkType = NetworkUtil.getNetworkType(context);
-            notifyObservers(networkType);
-        }
     }
 
     /**
@@ -68,18 +56,30 @@ public class NetStateChangeReceiver extends BroadcastReceiver {
         InstanceHolder.INSTANCE.mObservers.remove(observer);
     }
 
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+            NetworkType networkType = NetworkUtil.getNetworkType(context);
+            notifyObservers(networkType);
+        }
+    }
+
     /**
      * 通知所有的Observer网络状态变化
      */
     private void notifyObservers(NetworkType networkType) {
         if (networkType == NetworkType.NETWORK_NO) {
-            for(NetStateChangeObserver observer : mObservers) {
+            for (NetStateChangeObserver observer : mObservers) {
                 observer.onNetDisconnected();
             }
         } else {
-            for(NetStateChangeObserver observer : mObservers) {
+            for (NetStateChangeObserver observer : mObservers) {
                 observer.onNetConnected(networkType);
             }
         }
+    }
+
+    private static class InstanceHolder {
+        private static final NetStateChangeReceiver INSTANCE = new NetStateChangeReceiver();
     }
 }

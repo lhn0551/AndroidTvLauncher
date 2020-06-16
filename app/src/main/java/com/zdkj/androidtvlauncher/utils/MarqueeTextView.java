@@ -1,20 +1,11 @@
 package com.zdkj.androidtvlauncher.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Handler;
 import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.View;
 import android.view.ViewDebug;
-import android.widget.TextView;
-
-import com.zdkj.androidtvlauncher.R;
 
 
 public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView implements Runnable {
@@ -36,16 +27,12 @@ public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView
     }
 
     public MarqueeTextView(Context context, AttributeSet attrs) {
-        this(context, attrs,0);
+        this(context, attrs, 0);
     }
 
     public MarqueeTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         mMarqueeRepeatLimit = getMarqueeRepeatLimit();
-    }
-
-   public interface OnMarqueeCompleteListener {
-        void onMarqueeComplete();
     }
 
     public OnMarqueeCompleteListener getMarqueeCompleteListener() {
@@ -59,6 +46,7 @@ public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView
 
     /**
      * 获取文字滚动的速度，每秒移动的像素
+     *
      * @return
      */
     public int getMarqueeVelocity() {
@@ -67,10 +55,11 @@ public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView
 
     /**
      * 设置文字的滚动的速度
+     *
      * @param
      */
     public void setMarqueeVelocity(int velocity) {
-        this.mMarqueeVelocity = velocity ;
+        this.mMarqueeVelocity = velocity;
     }
 
     @Override
@@ -98,14 +87,13 @@ public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView
         startStopMarquee(focused);
     }
 
-    public void startStopMarquee(boolean bool){
-        if(bool){
+    public void startStopMarquee(boolean bool) {
+        if (bool) {
             startScroll();
-        }else{
+        } else {
             stopScroll();
         }
     }
-
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -127,8 +115,8 @@ public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView
 
     @Override
     public void run() {
-        if(textWidth <= getWidth()){
-            if(null != marqueeCompleteListener){
+        if (textWidth <= getWidth()) {
+            if (null != marqueeCompleteListener) {
                 marqueeCompleteListener.onMarqueeComplete();
             }
             return;
@@ -144,10 +132,10 @@ public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView
         scrollTo(currentScrollX, 0);
 
 
-        if (textWidth != 0  && getScrollX() >= textWidth) {
+        if (textWidth != 0 && getScrollX() >= textWidth) {
             mMarqueeRepeatLimit--;
-            if(mMarqueeRepeatLimit <= 0){
-                if(null != marqueeCompleteListener){
+            if (mMarqueeRepeatLimit <= 0) {
+                if (null != marqueeCompleteListener) {
                     marqueeCompleteListener.onMarqueeComplete();
                 }
                 return;
@@ -157,8 +145,9 @@ public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView
 
         postDelayed(this, MARQUEE_RESTART_DELAY);
     }
+
     /**
-     *  开始滚动
+     * 开始滚动
      */
     private void startScroll() {
         isStop = false;
@@ -167,18 +156,24 @@ public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView
         currentScrollX = 0;
         postDelayed(this, MARQUEE_DELAY);
     }
+
     /**
-     *  停止滚动
+     * 停止滚动
      */
     private void stopScroll() {
         isStop = true;
     }
+
     /**
-     *  从头开始滚动
+     * 从头开始滚动
      */
     public void startFor0() {
         currentScrollX = 0;
         startScroll();
+    }
+
+    public interface OnMarqueeCompleteListener {
+        void onMarqueeComplete();
     }
 }
 

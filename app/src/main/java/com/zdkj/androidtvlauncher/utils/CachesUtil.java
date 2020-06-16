@@ -2,7 +2,6 @@ package com.zdkj.androidtvlauncher.utils;
 
 import android.os.Environment;
 
-
 import com.zdkj.androidtvlauncher.base.MyApp;
 
 import java.io.File;

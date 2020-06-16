@@ -29,7 +29,7 @@ public class V7LinearLayoutManager extends LinearLayoutManager {
 
     @Override
     public boolean requestChildRectangleOnScreen(RecyclerView parent, View child, Rect rect, boolean immediate, boolean focusedChildVisible) {
-        if(parent instanceof TvRecyclerView) {
+        if (parent instanceof TvRecyclerView) {
             return parent.requestChildRectangleOnScreen(child, rect, immediate);
         }
         return super.requestChildRectangleOnScreen(parent, child, rect, immediate, focusedChildVisible);

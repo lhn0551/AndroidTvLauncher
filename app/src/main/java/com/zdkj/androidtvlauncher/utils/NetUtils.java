@@ -18,28 +18,21 @@ public class NetUtils {
 
     /* 网络状态 */
     public static boolean isNet = true;
-    public enum netType
-    {
-        wifi, CMNET, CMWAP, noneNet
-    }
 
     /**
-     * @方法说明:判断WIFI网络是否可用
-     * @方法名称:isWifiConnected
      * @param context
      * @return
+     * @方法说明:判断WIFI网络是否可用
+     * @方法名称:isWifiConnected
      * @返回值:boolean
      */
-    public static boolean isWifiConnected(Context context)
-    {
-        if (context != null)
-        {
+    public static boolean isWifiConnected(Context context) {
+        if (context != null) {
             ConnectivityManager mConnectivityManager = (ConnectivityManager) context
                     .getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo mWiFiNetworkInfo = mConnectivityManager
                     .getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            if (mWiFiNetworkInfo != null)
-            {
+            if (mWiFiNetworkInfo != null) {
                 return mWiFiNetworkInfo.isAvailable();
             }
         }
@@ -47,22 +40,19 @@ public class NetUtils {
     }
 
     /**
-     * @方法说明:判断MOBILE网络是否可用
-     * @方法名称:isMobileConnected
      * @param context
      * @return
+     * @方法说明:判断MOBILE网络是否可用
+     * @方法名称:isMobileConnected
      * @返回值:boolean
      */
-    public static boolean isMobileConnected(Context context)
-    {
-        if (context != null)
-        {
+    public static boolean isMobileConnected(Context context) {
+        if (context != null) {
             ConnectivityManager mConnectivityManager = (ConnectivityManager) context
                     .getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo mMobileNetworkInfo = mConnectivityManager
                     .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            if (mMobileNetworkInfo != null)
-            {
+            if (mMobileNetworkInfo != null) {
                 return mMobileNetworkInfo.isAvailable();
             }
         }
@@ -70,22 +60,19 @@ public class NetUtils {
     }
 
     /**
-     * @方法说明:获取当前网络连接的类型信息
-     * @方法名称:getConnectedType
      * @param context
      * @return
+     * @方法说明:获取当前网络连接的类型信息
+     * @方法名称:getConnectedType
      * @返回值:int
      */
-    public static int getConnectedType(Context context)
-    {
-        if (context != null)
-        {
+    public static int getConnectedType(Context context) {
+        if (context != null) {
             ConnectivityManager mConnectivityManager = (ConnectivityManager) context
                     .getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo mNetworkInfo = mConnectivityManager
                     .getActiveNetworkInfo();
-            if (mNetworkInfo != null && mNetworkInfo.isAvailable())
-            {
+            if (mNetworkInfo != null && mNetworkInfo.isAvailable()) {
                 return mNetworkInfo.getType();
             }
         }
@@ -93,36 +80,28 @@ public class NetUtils {
     }
 
     /**
-     * @方法说明:获取当前的网络状态 -1：没有网络 1：WIFI网络2：wap 网络3：net网络
-     * @方法名称:getAPNType
      * @param context
      * @return
+     * @方法说明:获取当前的网络状态 -1：没有网络 1：WIFI网络2：wap 网络3：net网络
+     * @方法名称:getAPNType
      * @返回值:netType
      */
-    public static netType getAPNType(Context context)
-    {
+    public static netType getAPNType(Context context) {
         ConnectivityManager connMgr = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo == null)
-        {
+        if (networkInfo == null) {
             return netType.noneNet;
         }
         int nType = networkInfo.getType();
 
-        if (nType == ConnectivityManager.TYPE_MOBILE)
-        {
-            if (networkInfo.getExtraInfo().toLowerCase().equals("cmnet"))
-            {
+        if (nType == ConnectivityManager.TYPE_MOBILE) {
+            if (networkInfo.getExtraInfo().toLowerCase().equals("cmnet")) {
                 return netType.CMNET;
-            }
-
-            else
-            {
+            } else {
                 return netType.CMWAP;
             }
-        } else if (nType == ConnectivityManager.TYPE_WIFI)
-        {
+        } else if (nType == ConnectivityManager.TYPE_WIFI) {
             return netType.wifi;
         }
         return netType.noneNet;
@@ -130,10 +109,10 @@ public class NetUtils {
     }
 
     /**
-     * @方法说明:判断是否有网络连接
-     * @方法名称:isNetworkConnected
      * @param context
      * @return
+     * @方法说明:判断是否有网络连接
+     * @方法名称:isNetworkConnected
      * @返回值:boolean
      */
     public static boolean isNetworkConnected(Context context) {
@@ -150,23 +129,19 @@ public class NetUtils {
     }
 
     /**
-     * @方法说明:网络是否可用
-     * @方法名称:isNetworkAvailable
      * @param context
      * @return
+     * @方法说明:网络是否可用
+     * @方法名称:isNetworkAvailable
      * @返回值:boolean
      */
-    public static boolean isNetworkAvailable(Context context)
-    {
+    public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager mgr = (ConnectivityManager) context
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo[] info = mgr.getAllNetworkInfo();
-        if (info != null)
-        {
-            for (int i = 0; i < info.length; i++)
-            {
-                if (info[i].getState() == NetworkInfo.State.CONNECTED)
-                {
+        if (info != null) {
+            for (int i = 0; i < info.length; i++) {
+                if (info[i].getState() == NetworkInfo.State.CONNECTED) {
                     return true;
                 }
             }
@@ -175,10 +150,10 @@ public class NetUtils {
     }
 
     /**
-     * @方法说明:判断是否是手机网络
-     * @方法名称:is3GNet
      * @param context
      * @return
+     * @方法说明:判断是否是手机网络
+     * @方法名称:is3GNet
      * @返回值:boolean
      */
     public static boolean is3GNet(Context context) {
@@ -187,6 +162,10 @@ public class NetUtils {
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetInfo != null
                 && activeNetInfo.getType() == ConnectivityManager.TYPE_MOBILE;
+    }
+
+    public enum netType {
+        wifi, CMNET, CMWAP, noneNet
     }
 
 }

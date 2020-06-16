@@ -12,9 +12,6 @@ import com.zdkj.androidtvlauncher.models.ImageBean;
 import com.zdkj.androidtvlauncher.models.LiveSourceBean;
 import com.zdkj.androidtvlauncher.models.TextBean;
 import com.zdkj.androidtvlauncher.models.VideoBean;
-import com.zdkj.androidtvlauncher.utils.LogUtils;
-
-import org.w3c.dom.Text;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import rxhttp.wrapper.param.RxHttp;
@@ -35,22 +32,27 @@ public class MainViewModel extends ViewModel {
         loadTextList();
         return TextListData;
     }
+
     LiveData<VideoBean> getPlayList() {
         //获取数据
         loadVideoList();
         return videoLiveData;
     }
+
     LiveData<ImageBean> getImageList() {
         //获取数据
         loadImageList();
         return imageListData;
     }
-    public void updateImageList(){
+
+    public void updateImageList() {
         loadImageList();
     }
-    public void updateTextList(){
+
+    public void updateTextList() {
         loadTextList();
     }
+
     @SuppressLint("CheckResult")
     private void loadTextList() {
         RxHttp.get(AppNetWork.TEXTLIST + getAndroidId())
@@ -67,6 +69,7 @@ public class MainViewModel extends ViewModel {
                 }, throwable -> {
                 });
     }
+
     @SuppressLint("CheckResult")
     private void loadImageList() {
         RxHttp.get(AppNetWork.IMAGELIST + getAndroidId())
@@ -114,6 +117,7 @@ public class MainViewModel extends ViewModel {
                 });
 
     }
+
     @SuppressLint("CheckResult")
     private void afterPlay(String video_id) {
         RxHttp.get(AppNetWork.AFTERFINISHPLAYING + getAndroidId() + "&video_id=" + video_id)

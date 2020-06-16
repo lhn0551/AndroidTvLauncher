@@ -42,7 +42,7 @@ public class MyGridLayoutManager extends GridLayoutManager {
     /**
      * Manually detect next view to focus.
      *
-     * @param fromPos from what position start to seek.
+     * @param fromPos   from what position start to seek.
      * @param direction in what direction start to seek. Your regular {@code View.FOCUS_*}.
      * @return adapter position of next view to focus. May be equal to {@code fromPos}.
      */
@@ -96,7 +96,7 @@ public class MyGridLayoutManager extends GridLayoutManager {
     /**
      * Checks if we hit borders.
      *
-     * @param from from what position.
+     * @param from   from what position.
      * @param offset offset to new position.
      * @return {@code true} if we hit border.
      */
