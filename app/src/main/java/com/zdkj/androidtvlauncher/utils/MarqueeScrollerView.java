@@ -20,14 +20,6 @@ import org.greenrobot.eventbus.EventBus;
 public class MarqueeScrollerView extends AppCompatTextView {
 
     /**
-     * 默认滚动时间
-     */
-    private static final int ROLLING_INTERVAL_DEFAULT = 5000;
-    /**
-     * 第一次滚动默认延迟
-     */
-    private static final int FIRST_SCROLL_DELAY_DEFAULT = 0;
-    /**
      * 滚动模式-一直滚动
      */
     public static final int SCROLL_FOREVER = 100;
@@ -38,8 +30,15 @@ public class MarqueeScrollerView extends AppCompatTextView {
     /**
      * 每行内容得留白
      **/
-    public static final int DEFAULT_EMPTY = 100;
-
+    public static final int DEFAULT_EMPTY = 500;
+    /**
+     * 默认滚动时间
+     */
+    private static final int ROLLING_INTERVAL_DEFAULT = 5000;
+    /**
+     * 第一次滚动默认延迟
+     */
+    private static final int FIRST_SCROLL_DELAY_DEFAULT = 0;
     /**
      * 滚动器
      */
@@ -84,6 +83,19 @@ public class MarqueeScrollerView extends AppCompatTextView {
     public MarqueeScrollerView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initView(context, attrs, defStyle);
+    }
+
+    public static int getScreenWidth(Context context) {
+        if (context != null) {
+            WindowManager wm = (WindowManager) context
+                    .getSystemService(Context.WINDOW_SERVICE);
+            if (wm != null) {
+                DisplayMetrics outMetrics = new DisplayMetrics();
+                wm.getDefaultDisplay().getMetrics(outMetrics);
+                return outMetrics.widthPixels;
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -203,19 +215,6 @@ public class MarqueeScrollerView extends AppCompatTextView {
         }
     }
 
-    public static int getScreenWidth(Context context) {
-        if(context != null){
-            WindowManager wm = (WindowManager) context
-                    .getSystemService(Context.WINDOW_SERVICE);
-            if(wm != null){
-                DisplayMetrics outMetrics = new DisplayMetrics();
-                wm.getDefaultDisplay().getMetrics(outMetrics);
-                return outMetrics.widthPixels;
-            }
-        }
-        return 0;
-    }
-
     public int getRndDuration() {
         return mRollingInterval;
     }
@@ -224,20 +223,20 @@ public class MarqueeScrollerView extends AppCompatTextView {
         this.mRollingInterval = duration;
     }
 
-    public void setScrollMode(int mode) {
-        this.mScrollMode = mode;
-    }
-
     public int getScrollMode() {
         return this.mScrollMode;
     }
 
-    public void setScrollFirstDelay(int delay) {
-        this.mFirstScrollDelay = delay;
+    public void setScrollMode(int mode) {
+        this.mScrollMode = mode;
     }
 
     public int getScrollFirstDelay() {
         return mFirstScrollDelay;
+    }
+
+    public void setScrollFirstDelay(int delay) {
+        this.mFirstScrollDelay = delay;
     }
 
     public boolean isReverse() {
