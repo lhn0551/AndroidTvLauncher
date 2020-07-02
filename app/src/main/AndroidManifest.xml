@@ -27,12 +27,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ui.DrawerActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity android:name=".ui.DrawerActivity"
+            android:launchMode="singleTask">
+            <!--            <intent-filter>-->
+            <!--                <action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
+            <!--                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />-->
+            <!--            </intent-filter>-->
         </activity>
         <activity
             android:name=".ui.ScanCodeActivity"
@@ -42,23 +43,23 @@
             android:name=".ui.LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask">
-            <!--            <intent-filter>-->
-            <!--                <action android:name="android.intent.action.MAIN" />-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-            <!--            </intent-filter>-->
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
         </activity>
-        <!--        <activity-->
-        <!--            android:name=".ui.MainActivityExo"-->
-        <!--            android:configChanges="keyboardHidden|orientation|screenSize"-->
-        <!--            android:launchMode="singleTask" >-->
-        <!--&lt;!&ndash;            <intent-filter>&ndash;&gt;-->
-        <!--&lt;!&ndash;                <action android:name="android.intent.action.MAIN" />&ndash;&gt;-->
-
-        <!--&lt;!&ndash;                <category android:name="android.intent.category.LAUNCHER" />&ndash;&gt;-->
-        <!--&lt;!&ndash;            </intent-filter>&ndash;&gt;-->
-        <!--        </activity>-->
-
+        <!--        <provider-->
+        <!--            android:name="com.tencent.bugly.beta.utils.BuglyFileProvider"-->
+        <!--            android:authorities="${applicationId}.fileProvider"-->
+        <!--            android:exported="false"-->
+        <!--            android:grantUriPermissions="true"-->
+        <!--            tools:replace="name,authorities,exported,grantUriPermissions">-->
+        <!--            <meta-data-->
+        <!--                android:name="android.support.FILE_PROVIDER_PATHS"-->
+        <!--                android:resource="@xml/provider_paths"-->
+        <!--                tools:replace="name,resource" />-->
+        <!--        </provider>-->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities=".my_provider"

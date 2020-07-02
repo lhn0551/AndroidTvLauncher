@@ -7,13 +7,16 @@ public class HttpProxyCacheUtil {
     private static HttpProxyCacheServer videoProxy;
 
     public static HttpProxyCacheServer getVideoProxy() {
-        if (videoProxy == null) {
-            videoProxy = new HttpProxyCacheServer.Builder(MyApp.getInstance().getApplicationContext())
-                    .cacheDirectory(CachesUtil.getMediaCacheFile(CachesUtil.VIDEO))
-                    .maxCacheFilesCount(20)
-                    .fileNameGenerator(new CacheFileNameGenerator())
-                    .build();
+        synchronized (HttpProxyCacheUtil.class){
+            if (videoProxy == null) {
+                videoProxy = new HttpProxyCacheServer.Builder(MyApp.getInstance().getApplicationContext())
+                        .cacheDirectory(CachesUtil.getMediaCacheFile(CachesUtil.VIDEO))
+                        .maxCacheFilesCount(20)
+                        .fileNameGenerator(new CacheFileNameGenerator())
+                        .build();
+            }
+            return videoProxy;
         }
-        return videoProxy;
+
     }
 }

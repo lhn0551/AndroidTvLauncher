@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen>
+    <external-path
+        name="test.pdf"
+        path="download" />
+    <external-path
+        name="Android/data/com.itemwang.nw"
+        path="share_files_path" />
+    <external-path
+        name="."
+        path="root_path" />
+    <external-files-path
+        name="name"
+        path="path" />
+    <!-- /storage/emulated/0/Download/${applicationId}/.beta/apk-->
+    <external-path
+        name="beta_external_path"
+        path="Download/" />
+    <!--/storage/emulated/0/Android/data/${applicationId}/files/apk/-->
+    <external-path
+        name="beta_external_files_path"
+        path="Android/data/" />
+</PreferenceScreen>

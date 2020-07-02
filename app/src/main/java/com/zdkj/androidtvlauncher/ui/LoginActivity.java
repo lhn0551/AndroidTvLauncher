@@ -39,6 +39,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
     String PERMISSION_STORAGE_MSG = "请授予权限，否则影响部分使用功能";
     private int i = 0;
     private boolean isJumpMain = false;
+    private CountDownTimer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,12 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
         }
         getPermissions();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timer.cancel();
     }
 
     private void getPermissions() {
@@ -83,7 +90,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
      * 第二步如果有网，检查是否注册 有200 负责201
      */
     private void JumpActivity() {
-        new CountDownTimer(2 * 1000, 1000) {
+        timer = new CountDownTimer(2 * 1000, 1000) {
 
             @SuppressLint("SetTextI18n")
             @Override
@@ -96,7 +103,7 @@ public class LoginActivity extends BaseActivity implements EasyPermissions.Permi
             @Override
             public void onFinish() {
                 if (isJumpMain) {
-                    startActivity(new Intent(LoginActivity.this, PlayVideoFragment.class));
+                    startActivity(new Intent(LoginActivity.this, DrawerActivity.class));
 //                    startActivity(new Intent(LoginActivity.this, TikTokActivity.class));
                     finish();
                 } else {

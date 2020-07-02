@@ -14,7 +14,6 @@ import com.zdkj.androidtvlauncher.R;
 import com.zdkj.androidtvlauncher.api.AppNetWork;
 import com.zdkj.androidtvlauncher.base.BaseActivity;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import butterknife.BindView;
@@ -48,12 +47,15 @@ public class ScanCodeActivity extends BaseActivity {
             public void run() {
                 //需要在子线程中处理的逻辑
                 while (checkBind) {
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    synchronized (this) {
+                        try {
+                            Thread.sleep(3000);
+                            getClassIdFromNet(AndroidId);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    getClassIdFromNet(AndroidId);
+
 
                 }
 
@@ -82,16 +84,12 @@ public class ScanCodeActivity extends BaseActivity {
                 .as(RxLife.asOnMain(this))
                 .subscribe(s -> {
                     JSONObject jsonObject = null;
-                    try {
-                        jsonObject = new JSONObject(s);
-                        if (jsonObject.getString("code").equals("200")) {
-                            checkBind = false;
-                            startActivity(new Intent(ScanCodeActivity.this, PlayVideoFragment.class));
+                    jsonObject = new JSONObject(s);
+                    if (jsonObject.getString("code").equals("200")) {
+                        checkBind = false;
+                        startActivity(new Intent(ScanCodeActivity.this, DrawerActivity.class));
 //                            startActivity(new Intent(ScanCodeActivity.this, TikTokActivity.class));
-                            finish();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        finish();
                     }
                 }, throwable -> {
                 });

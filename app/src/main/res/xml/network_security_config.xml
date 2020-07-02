@@ -3,4 +3,8 @@
     <!--    <domain-config cleartextTrafficPermitted="tr">-->
     <!--&lt;!&ndash;        <domain includeSubdomains="true">ad.zadtek.com</domain>&ndash;&gt;-->
     <!--    </domain-config>-->
+    <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="true"> 127.0.0.1</domain>
+    <domain includeSubdomains="true"> ad.zadtek.com</domain>
+</domain-config>
 </network-security-config>

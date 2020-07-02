@@ -73,7 +73,7 @@ public class DrawerActivity extends BaseActivity {
             @Override
             public void onChildViewHolderSelected(RecyclerView parent, RecyclerView.ViewHolder child, int position, int subposition) {
                 super.onChildViewHolderSelected(parent, child, position, subposition);
-                LogUtils.e("onChildViewHolderSelected() returned: " + position);
+//                LogUtils.e("onChildViewHolderSelected() returned: " + position);
                 pos = position;
             }
 

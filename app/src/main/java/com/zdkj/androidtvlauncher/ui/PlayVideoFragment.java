@@ -38,9 +38,10 @@ import com.zdkj.androidtvlauncher.models.ImageBean;
 import com.zdkj.androidtvlauncher.models.VideoBean;
 import com.zdkj.androidtvlauncher.msgs.AfterPlay;
 import com.zdkj.androidtvlauncher.msgs.LiveChannel;
+import com.zdkj.androidtvlauncher.msgs.StopText;
 import com.zdkj.androidtvlauncher.utils.HttpProxyCacheUtil;
 import com.zdkj.androidtvlauncher.utils.LogUtils;
-import com.zdkj.androidtvlauncher.utils.MyTextView;
+import com.zdkj.androidtvlauncher.utils.MarqueeScrollerView;
 import com.zdkj.androidtvlauncher.utils.NetStateChangeObserver;
 import com.zdkj.androidtvlauncher.utils.NetStateChangeReceiver;
 import com.zdkj.androidtvlauncher.utils.NetworkType;
@@ -66,7 +67,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
     @BindView(R.id.tv_Timer)
     TextView tvTimer;
     @BindView(R.id.tv_ad)
-    MyTextView tvAd;
+    MarqueeScrollerView tvAd;
     @BindView(R.id.videoView)
     PlayerView videoView;
     private ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
@@ -78,6 +79,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
     private boolean isLive = true;
     private boolean isTextShow = true;
     private CountDownTimer timer;
+    private HttpProxyCacheServer proxy;
 
     public static PlayVideoFragment newInstance() {
         return new PlayVideoFragment();
@@ -91,6 +93,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
         }
+
         initPlayer();
         initData();
         return view;
@@ -109,9 +112,6 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
 
             mainViewModel.getAfterPlay(playerId + "")
                     .observe(getViewLifecycleOwner(), afterPlayingBean -> {
-                        if (playerId == null) {
-                            return;
-                        }
                         switch (afterPlayingBean.getData().getDelete()) {
                             case "1":
                                 mainViewModel.updatePlayList();
@@ -153,15 +153,23 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
                 tvAd.setVisibility(View.VISIBLE);
                 tvAd.setText(textBean.getData().get(0).getTxt());
                 tvAd.setSelected(true);
-                tvAd.setMarqueeListener(repeatLimit -> {
-                    LogUtils.e("剩余滚动次数:" + repeatLimit);
-                    isTextShow = true;
-                    tvAd.setVisibility(View.GONE);
-                    tvAd.setText("");
-                });
+
+                tvAd.setRndDuration(textBean.getData().get(0).getTxt().length() * 400);
+                tvAd.startScroll();
+//                tvAd.setMarqueeListener(repeatLimit -> {
+//                    LogUtils.e("剩余滚动次数:" + repeatLimit);
+//                    isTextShow = true;
+//                    tvAd.setVisibility(View.GONE);
+//                    tvAd.setText("");
+//                });
 
             }
         });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void stopTextScroll(StopText msg) {
+        tvAd.setVisibility(View.GONE);
     }
 
     @SuppressLint("SetTextI18n")
@@ -190,12 +198,14 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
         DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter.Builder(getActivity()).build();
         dataSourceFactory = new DefaultDataSourceFactory(MyApp.getInstance(), BANDWIDTH_METER,
                 new DefaultHttpDataSourceFactory(Util.getUserAgent(MyApp.getInstance(), "电视推广"), BANDWIDTH_METER));
+//        if (player==null)
         player = ExoPlayerFactory.newSimpleInstance(MyApp.getInstance());
         videoView.setUseController(false);
         videoView.setPlayer(player);
         player.addListener(new EventListener() {
             @Override
             public void onPlayerError(ExoPlaybackException error) {
+                LogUtils.e(error.getMessage());
                 if (error.type == ExoPlaybackException.TYPE_SOURCE) {
                     playVideo();
                 }
@@ -205,14 +215,13 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 if (playWhenReady) {
                     playerId = player.getCurrentTag() + "";
-                    LogUtils.e("正在播放视频ID" + playerId);
                 }
-
             }
 
             @Override
             public void onPositionDiscontinuity(int reason) {
                 if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+                    playerId = player.getCurrentTag() + "";
                     EventBus.getDefault().post(new AfterPlay(playerId + ""));
                     LogUtils.e("切换视频=" + playerId);
                 }
@@ -279,6 +288,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
         }
         String videoName = videoList.get(0).getVideo_url();
         if (videoName.endsWith(".m3u8")) {
+            Log.e("TAG", videoName);
             HlsMediaSource mediaSource =
                     new HlsMediaSource.Factory(dataSourceFactory).setTag(videoList.get(0).getVideo_id())
                             .createMediaSource(Uri.parse(videoName));
@@ -287,6 +297,7 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
             startThreadPool();
             DrawerActivity.isShowMu = true;
         } else {
+            proxy = HttpProxyCacheUtil.getVideoProxy();
             DrawerActivity.isShowMu = false;
             if (concatenatedSource != null) {
                 concatenatedSource.clear();
@@ -294,9 +305,13 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
                 concatenatedSource = new ConcatenatingMediaSource();
             }
             stopThreadPool();
-            HttpProxyCacheServer proxy = HttpProxyCacheUtil.getVideoProxy();
+
+
             for (int i = 0; i < videoList.size(); i++) {
+//                proxy.registerCacheListener(this, videoList.get(i).getVideo_url());
                 String url = proxy.getProxyUrl(videoList.get(i).getVideo_url());
+                LogUtils.e("proxyUrl=" + url + "\noriginal Url=" + videoList.get(i).getVideo_url());
+//                String url = videoList.get(i).getVideo_url();
                 MediaSource mediaSource =
                         new ProgressiveMediaSource.Factory(dataSourceFactory).setTag(videoList.get(i).getVideo_id())
                                 .createMediaSource(Uri.parse(url));
@@ -349,11 +364,12 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
         if (exec == null) {
             exec = new ScheduledThreadPoolExecutor(1);
         }
-        exec.scheduleAtFixedRate(new LiveRunnable(), 15000, 30000, TimeUnit.MILLISECONDS);
+        if (exec.getTaskCount() == 0)
+            exec.scheduleAtFixedRate(new LiveRunnable(), 15000, 30000, TimeUnit.MILLISECONDS);
     }
 
     private void stopThreadPool() {
-        if (exec != null) {
+        if (exec.getTaskCount() > 0) {
             exec.shutdownNow();
             exec = null;
         }
@@ -363,7 +379,10 @@ public class PlayVideoFragment extends Fragment implements NetStateChangeObserve
     static class LiveRunnable implements Runnable {
         @Override
         public void run() {
-            EventBus.getDefault().post(new AfterPlay(playerId + ""));
+            synchronized (PlayVideoFragment.class) {
+                EventBus.getDefault().post(new AfterPlay(playerId));
+            }
+
         }
     }
 }
